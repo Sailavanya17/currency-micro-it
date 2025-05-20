@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .converter-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 350px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+        }
+
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>Currency Converter</h1>
+        <select id="fromCurrency"></select>
+        <select id="toCurrency"></select>
+        <input type="number" id="amount" placeholder="Enter amount">
+        <button onclick="convertCurrency()">Convert</button>
+        <button class="clear-btn" onclick="clearFields()">Clear</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const currencyList = ["USD", "EUR", "INR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY"];
+
+        const fromCurrency = document.getElementById("fromCurrency");
+        const toCurrency = document.getElementById("toCurrency");
+
+        currencyList.forEach(currency => {
+            const option1 = document.createElement("option");
+            option1.value = currency;
+            option1.text = currency;
+            fromCurrency.appendChild(option1);
+
+            const option2 = document.createElement("option");
+            option2.value = currency;
+            option2.text = currency;
+            toCurrency.appendChild(option2);
+        });
+
+        fromCurrency.value = "USD";
+        toCurrency.value = "INR";
+
+        async function convertCurrency() {
+            const amount = document.getElementById("amount").value;
+            const from = fromCurrency.value;
+            const to = toCurrency.value;
+
+            if (!amount || isNaN(amount)) {
+                document.getElementById("result").textContent = "Please enter a valid amount.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+                const data = await response.json();
+                const rate = data.rates[to];
+                const result = (amount * rate).toFixed(2);
+                document.getElementById("result").textContent = `${amount} ${from} = ${result} ${to}`;
+            } catch (error) {
+                document.getElementById("result").textContent = "Error fetching exchange rates. Try again later.";
+            }
+        }
+
+        function clearFields() {
+            document.getElementById("amount").value = "";
+            document.getElementById("result").textContent = "";
+            fromCurrency.value = "USD";
+            toCurrency.value = "INR";
+        }
+    </script>
+</body>
+</html>
